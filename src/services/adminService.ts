@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import pool from "../pool/pool";
 import TokenService from "./tokenService";
-import * as wasi from "wasi";
 
 interface AdminData {
     login: string;

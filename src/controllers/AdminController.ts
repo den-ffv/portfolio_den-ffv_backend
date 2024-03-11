@@ -53,11 +53,17 @@ class AdminController {
             return res.status(400).json({message: `Error updating admin: ${err}`})
         }
     }
-    async changeStatus(req: Request, res: Response){
+    async changeStatus(req: Request, res: Response): Promise<void>{
         try {
 
+            const {rows} = await pool.query(`SELECT job_secrch_status FROM admin`);
+            const newStatus = !rows[0].job_secrch_status;
+
+            await pool.query(`UPDATE admin SET job_secrch_status = $1`, [newStatus]);
+
+            res.status(200).json({message: `Successful update job status ${newStatus}`});
         }catch (err){
-            return res.status(400).json({message: `Error changing job status: ${err}`})
+            res.status(400).json({message: `Error changing job status: ${err}`})
         }
     }
 }
