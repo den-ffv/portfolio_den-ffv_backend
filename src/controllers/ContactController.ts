@@ -1,7 +1,6 @@
 import {Request, Response} from "express";
 import ContactService from "../services/contactService";
 import contactService from "../services/contactService";
-import pool from "../pool/pool";
 
 class ContactController {
     async createContact(req: Request, res: Response): Promise<void> {
