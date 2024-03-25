@@ -12,6 +12,6 @@ app.use(cors())
 
 app.use("/api", router);
 
-app.listen(port, () => {
+app.listen(port, async () => {
     console.log(`Server listening on port ${port}`)
 })

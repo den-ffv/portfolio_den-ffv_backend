@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 import AdminService from "../services/adminService";
 import pool from "../pool/pool";
+import Admin from "../models/AdminModel";
 
 interface CreateAdminRequest {
     login: string,
@@ -10,6 +11,7 @@ interface CreateAdminRequest {
     position: string,
     about: string,
 }
+
 interface GetAdminRequest {
     login: string,
     password: string,
@@ -22,19 +24,20 @@ class AdminController {
 
             const admin = await AdminService.create(login, password, name, surname, position, about);
 
-            res.status(200).json({message: "Successful creation admin", admin});
+            res.status(200).json({message: "Successful creation admin", ...admin});
         } catch (err) {
             console.error(err);
             res.status(400).json({message: `Error creating admin: ${err}`});
         }
     }
+
     async getAdmin(req: Request<{}, {}, GetAdminRequest>, res: Response) {
         try {
             const {login, password} = req.body;
 
             const admin = await AdminService.get(login, password);
 
-            res.status(200).json({message: "Successful get admin", admin})
+            res.status(200).json({message: "Successful get admin", ...admin})
         } catch (err) {
             console.error(err)
             return res.status(400).json({message: `Error getting admin: ${err}`})
@@ -53,16 +56,14 @@ class AdminController {
             return res.status(400).json({message: `Error updating admin: ${err}`})
         }
     }
-    async changeStatus(req: Request, res: Response): Promise<void>{
+
+    async changeStatus(req: Request, res: Response) {
         try {
 
-            const {rows} = await pool.query(`SELECT job_secrch_status FROM admin`);
-            const newStatus = !rows[0].job_secrch_status;
-
-            await pool.query(`UPDATE admin SET job_secrch_status = $1`, [newStatus]);
+            const newStatus = await AdminService.updateJodStatus();
 
             res.status(200).json({message: `Successful update job status ${newStatus}`});
-        }catch (err){
+        } catch (err) {
             res.status(400).json({message: `Error changing job status: ${err}`})
         }
     }

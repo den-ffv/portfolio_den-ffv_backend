@@ -1,23 +1,21 @@
-import pkg from "pg";
-const Pool = pkg.Pool;
+import { Sequelize, Options } from "sequelize";
 
-interface DbConfig{
-    user: string,
-    password:string,
-    host:string,
-    port: number,
-    database:string
+interface DatabaseConfig {
+    database: string;
+    username: string;
+    password: string;
+    host: string;
+    port: number;
+    dialect: string;
 }
-
-
-const poolConfig: DbConfig ={
-    user: process.env.DB_USER || '',
-    password: process.env.DB_PASSWORD || '',
-    host: process.env.DB_HOST || '',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
+const dbConfig: DatabaseConfig = {
     database: process.env.DB_DATABASE || '',
-}
+    username: process.env.DB_USER || '',
+    password: process.env.DB_PASSWORD || '',
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432', 10),
+    dialect: process.env.DB_DIALECT || 'postgres'
+};
+const sequelize = new Sequelize(dbConfig as Options);
 
-const pool = new Pool(poolConfig);
-
-export default pool
+export default sequelize
