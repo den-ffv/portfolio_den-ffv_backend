@@ -1,4 +1,4 @@
-import pool from "../pool/pool";
+import Contact from "../models/ContactModel";
 
 interface ContactData {
     name: string,
@@ -26,16 +26,19 @@ class ContactService {
             throw new Error("Invalid URL")
         }
 
-        const queryForCreateContact = await pool.query(`INSERT INTO contact(name, url, admin_id)
-                                                        VALUES ($1, $2, 1) RETURNING *`, [name, url]);
-        return {contact: queryForCreateContact.rows[0]};
+        const queryForCreateContact = await Contact.create({
+            name: name,
+            url: url
+        })
 
+        return {contact: queryForCreateContact.dataValues};
     }
 
     async getAll() {
-        const contacts = await pool.query(`SELECT *
-                                           FROM contact`)
-        return {contacts: contacts.rows}
+        const contacts = await Contact.findAll();
+        const contactsData = contacts.map(contact => contact.toJSON())
+
+        return {contacts: contactsData}
     }
 
     async update(id: string, name: string, url: string): Promise<ContactServiceResponse> {
@@ -43,18 +46,23 @@ class ContactService {
         if (!this.isValidUrl(url)) {
             throw new Error("Invalid URL")
         }
-        const updateContactByID = await pool.query(`UPDATE contact
-                                                    SET name = $1,
-                                                        url  = $2
-                                                    WHERE id = $3 RETURNING *;`, [name, url, id])
+        const updatedContact = await Contact.findByPk(id);
+        if (!updatedContact) {
+            throw new Error("Contact not found");
+        }
+        await updatedContact.update({name, url});
 
-        return {contact: updateContactByID.rows[0]}
+        return {contact: updatedContact.dataValues}
     }
 
     async delete(id: string): Promise<void> {
-        const resultOfDeletingContact = await pool.query(`DELETE
-                                                          FROM contact
-                                                          WHERE id = $1`, [id]);
+
+        const resultOfDeletingContact = await Contact.destroy({
+            where: {
+                id: id,
+            },
+        });
+
 
     }
 }

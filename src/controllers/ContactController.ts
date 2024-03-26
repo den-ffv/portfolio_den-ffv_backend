@@ -1,6 +1,5 @@
 import {Request, Response} from "express";
 import ContactService from "../services/contactService";
-import contactService from "../services/contactService";
 
 class ContactController {
     async createContact(req: Request, res: Response): Promise<void> {
@@ -21,9 +20,9 @@ class ContactController {
 
     async getContact(req: Request, res: Response): Promise<void> {
         try {
-            const get = await ContactService.getAll()
+            const contacts = await ContactService.getAll()
 
-            res.status(200).json({message: "Successfully received contacts", contacts: get})
+            res.status(200).json({message: "Successfully received contacts", ...contacts})
         } catch (err) {
             console.error(err)
             res.status(400).json({message: "Error when receiving contact"});
@@ -38,11 +37,9 @@ class ContactController {
             if ((name.length <= 0 || url.length <= 0)) {
                 res.status(400).json({message: "There is an empty field"})
             }
-            const update = await contactService.update(id, name, url)
+            const contact = await ContactService.update(id, name, url)
 
-            console.log(update)
-
-            res.status(200).json({message: "Successfully update a contact by ID", contact: update})
+            res.status(200).json({message: "Successfully update a contact by ID", ...contact})
         } catch (err) {
             console.error(err)
             res.status(400).json({message: "Error when updating contact"});
@@ -52,7 +49,7 @@ class ContactController {
     async deleteContact(req: Request, res: Response): Promise<void> {
         try {
             const {id} = req.params;
-            if(!id || isNaN(+id)){
+            if(!id){
                 res.status(400).json({ message: "Invalid or missing 'id' parameter" });
                 return;
             }

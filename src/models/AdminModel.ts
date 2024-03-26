@@ -1,6 +1,5 @@
 import {DataTypes, UUIDV4} from "sequelize";
 import sequelize from "../pool/pool";
-import { v4 as uuidv4 } from 'uuid';
 
 const Admin = sequelize.define('Admin', {
         id: {
